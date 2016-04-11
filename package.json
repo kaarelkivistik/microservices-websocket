@@ -1,0 +1,25 @@
+{
+  "name": "messages-websocket",
+  "version": "0.3.0",
+  "description": "Messages websocket microservice",
+  "main": "index.jsx",
+  "scripts": {
+    "build": "babel --out-dir build src",
+    "start": "node build/app.js",
+    "develop": "babel-watch --watch src --watch *.js src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "pohlamoos@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.5.1",
+    "babel-preset-es2015": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-watch": "^1.0.1"
+  },
+  "dependencies": {
+    "amqplib": "^0.4.1",
+    "promise": "^7.1.1",
+    "ws": "^1.0.1"
+  }
+}

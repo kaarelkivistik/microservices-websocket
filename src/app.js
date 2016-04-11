@@ -38,28 +38,32 @@ amqplib.connect("amqp://" + MESSAGES_RABBIT_SERVICE_HOST + ":" + MESSAGES_RABBIT
 						
 						const { type } = decoded;
 						
+						let to;
 						let forwardedMessage;
 						
 						switch(type) {
 							case "MESSAGE_SENT":
-								const { message: { to, text } } = decoded;
+								const { message: { conversationId, to: messageTo, text } } = decoded;
+								to = messageTo;
 								
 								forwardedMessage = {
 									type: "MESSAGE_SENT",
 									message: {
-										from: name, text
+										conversationId, from: name, text
 									}
 								};
 								
 								break;
 								
 							case "CONVERSATION_CREATED":
-								const { conversation: { id, participants } } = decoded;
+								const { conversation: { id, participants: [a, b] } } = decoded;
+								
+								to = name === a ? b : a;
 								
 								forwardedMessage = {
 									type: "CONVERSATION_CREATED",
 									conversation: {
-										id, participants
+										id, participants: [a, b]
 									}
 								};
 								
@@ -67,7 +71,7 @@ amqplib.connect("amqp://" + MESSAGES_RABBIT_SERVICE_HOST + ":" + MESSAGES_RABBIT
 						}
 						
 						if(DEBUG)
-							console.log("to queue", forwardedMessage);
+							console.log("to queue %s", to, forwardedMessage);
 						
 						channel.publish(MESSAGES_EXCHANGE_NAME, to, new Buffer(JSON.stringify(forwardedMessage)));
 					} catch (exception) {
@@ -91,12 +95,12 @@ amqplib.connect("amqp://" + MESSAGES_RABBIT_SERVICE_HOST + ":" + MESSAGES_RABBIT
 							
 							switch(type) {
 								case "MESSAGE_SENT":
-									const { message: { from, text } } = decoded;
+									const { message: { conversationId, from, text } } = decoded;
 									
 									forwardedMessage = {
 										type: "MESSAGE_SENT",
 										message: {
-											from, text
+											conversationId, from, text
 										}
 									};
 									
